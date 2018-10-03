@@ -28,6 +28,12 @@
             </div>
         </div>
 
-
+        @if(auth()->check())
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    hello
+                </div>
+            </div>
+        @endif
     </div>
 @endsection
