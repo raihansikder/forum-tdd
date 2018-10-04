@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+<?php
+
+/** @var $thread \App\Thread */
+?>
+
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
@@ -31,9 +36,19 @@
         @if(auth()->check())
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    hello
+                    <form method="post" action="{{route('replies.store',$thread->id)}}">
+                        {{csrf_field()}}
+                        <div class="form-group">
+                            <textarea name="body" id="body" class="form-control" placeholder="Have something to say?"
+                                      rows="5"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-default">Post</button>
+                    </form>
                 </div>
             </div>
+
+        @else
+            <p class="text-center">Please <a href="{{route('login')}}">sign in</a> to participate in discussion.</p>
         @endif
     </div>
 @endsection
