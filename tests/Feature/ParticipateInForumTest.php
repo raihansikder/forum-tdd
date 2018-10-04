@@ -35,9 +35,9 @@ class ParticipateInForumTest extends TestCase
         $reply = factory(Reply::class)->make();
 
         // Then their reply should be visible to the page
-        $this->post($thread->path() . "/replies", $reply->toArray());
+        $this->post(route('threads.show',$thread->id) . "/replies", $reply->toArray());
 
-        $this->get($thread->path())
+        $this->get(route('threads.show',$thread->id))
             ->assertSee($reply->body);
 
     }

@@ -18,6 +18,6 @@ class RepliesController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return redirect($thread->path());
+        return redirect(route('threads.show',$thread->id));
     }
 }
