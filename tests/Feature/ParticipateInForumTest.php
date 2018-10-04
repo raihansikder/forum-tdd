@@ -6,16 +6,17 @@ use App\Reply;
 use App\Thread;
 use App\User;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ParticipateInForumTest extends TestCase
 {
+
+    use DatabaseMigrations; // This will migrate all database and finally undo/rollback all migrations // This will migrate all database and finally undo/rollback all migrations
+
     /** @test */
     public function unauthenticated_user_may_not_add_replies()
     {
-
         $this->expectException(AuthenticationException::class);
 
         // and an existing thread

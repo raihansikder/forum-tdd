@@ -8,6 +8,8 @@ use Tests\TestCase;
 class ReplyTest extends TestCase
 {
 
+    use DatabaseMigrations;
+
     /** @test */
     public function is_has_an_owner()
     {
