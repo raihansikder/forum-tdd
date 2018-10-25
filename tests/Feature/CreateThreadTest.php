@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Channel;
 use App\Thread;
 use App\User;
 use Illuminate\Auth\AuthenticationException;
@@ -54,14 +55,56 @@ class CreateThreadTest extends TestCase
 
         // When we hit the endpoint to create thread
         /** @var Thread $thread */
-        $thread = create(Thread::class);
+        $thread = make(Thread::class);
 
-        //$response = $this->post(route('threads.store'), $thread->toArray());
-        //dd($response);
+        $response = $this->post(route('threads.store'), $thread->toArray());
+        // dd($response->headers->get('Location'));
 
         // Then when we visit the thread page
         // We should see the new thread
 
-        $this->get(route('threads.show', [$thread->channel_id, $thread->id]))->assertSee($thread->title);
+        $this->get($response->headers->get('Location'))
+            ->assertSee($thread->title);
+    }
+
+    /** @test */
+    public function a_thread_requires_a_title()
+    {
+
+        $this->publishThread(['title' => null])
+            ->assertSessionHasErrors('title');
+
+    }
+
+    /** @test */
+    public function a_thread_requires_a_body()
+    {
+
+        $this->publishThread(['body' => null])
+            ->assertSessionHasErrors('body');
+
+    }
+
+    /** @test */
+    public function a_thread_requires_a_valid_channel()
+    {
+
+        factory(Channel::class, 2)->create();
+
+        $this->publishThread(['channel_id' => null])
+            ->assertSessionHasErrors('channel_id');
+
+        $this->publishThread(['channel_id' => 9999])
+            ->assertSessionHasErrors('channel_id');
+
+    }
+
+    public function publishThread($overrides)
+    {
+        $this->withExceptionHandling()->signIn();
+
+        $thread = make(Thread::class, $overrides);
+
+        return $this->post(route('threads.store', $thread->toArray()));
     }
 }

@@ -15,7 +15,7 @@ function create($class, $attributes = [])
  * Short hand function to make a factory. This DOES NOT insert in database.
  * @param $class
  * @param array $attributes
- * @return mixed
+ * @return \Illuminate\Database\Eloquent\Model
  */
 function make($class, $attributes = [])
 {
