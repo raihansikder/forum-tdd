@@ -24,7 +24,7 @@ class ParticipateInThreadTest extends TestCase
         // OK if this AuthenticationException occurs when attempted to post
         // Equivalent to : $this->expectException(AuthenticationException::class);
         $this->withExceptionHandling()
-            ->post(route('replies.store', [$thread->channel_id, $thread->id]), [])
+            ->post(route('replies.store', [$thread->channel->slug, $thread->id]), [])
             ->assertRedirect(route('login')); // After post redirect to login
     }
 
@@ -41,10 +41,10 @@ class ParticipateInThreadTest extends TestCase
         $reply = make(Reply::class);
 
         // Then their reply should be visible to the page
-        // dd(route('threads.show', [$thread->channel->name, $thread->id]));
-        $this->post(route('replies.store', [$thread->channel->name, $thread->id]), $reply->toArray());
+        // dd(route('threads.show', [$thread->channel->slug, $thread->id]));
+        $this->post(route('replies.store', [$thread->channel->slug, $thread->id]), $reply->toArray());
 
-        $this->get(route('threads.show', [$thread->channel->name, $thread->id]))
+        $this->get(route('threads.show', [$thread->channel->slug, $thread->id]))
             ->assertSee($reply->body);
 
     }
@@ -60,7 +60,7 @@ class ParticipateInThreadTest extends TestCase
         // When the user adds a reply to the thread
         $reply = make(Reply::class, ['body' => null]);
 
-        $this->post(route('replies.store', [$thread->channel->name, $thread->id]), $reply->toArray())
+        $this->post(route('replies.store', [$thread->channel->slug, $thread->id]), $reply->toArray())
             ->assertSessionHasErrors('body');
 
     }
