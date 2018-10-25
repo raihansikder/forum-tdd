@@ -8,8 +8,9 @@ use Illuminate\Http\Request;
 class ThreadsController extends Controller
 {
 
-    public function __construct() {
-        $this->middleware('auth')->except('index','show');
+    public function __construct()
+    {
+        $this->middleware('auth')->except('index', 'show');
     }
 
     /**
@@ -43,20 +44,22 @@ class ThreadsController extends Controller
     {
         $thread = Thread::create([
             'user_id' => auth()->id(),
+            'channel_id' => request('channel_id'),
             'title' => request('title'),
             'body' => request('body')
         ]);
 
-        return redirect(route('threads.show', $thread->id));
+        return redirect(route('threads.show', [$thread->channel_id, $thread->id]));
     }
 
     /**
      * Display the specified resource.
      *
+     * @param $channel_id
      * @param  \App\Thread $thread
      * @return \Illuminate\Http\Response
      */
-    public function show(Thread $thread)
+    public function show($channel_id, Thread $thread)
     {
         return view('threads.show', compact('thread'));
     }

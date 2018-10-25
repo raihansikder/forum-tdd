@@ -12,15 +12,20 @@ use Tests\TestCase;
 class ParticipateInForumTest extends TestCase
 {
 
-    use DatabaseMigrations; // This will migrate all database and finally undo/rollback all migrations // This will migrate all database and finally undo/rollback all migrations
+    use DatabaseMigrations; // This will migrate all database and finally undo/rollback all migrations   // This will migrate all database and finally undo/rollback all migrations
 
     /** @test */
     public function unauthenticated_user_may_not_add_replies()
     {
-        $this->expectException(AuthenticationException::class);
 
         // and an existing thread
-        $this->post('/threads/1/replies', []);
+        $thread = create(Thread::class);
+
+        // OK if this AuthenticationException occurs when attempted to post
+        // Equivalent to : $this->expectException(AuthenticationException::class);
+        $this->withExceptionHandling()
+            ->post(route('replies.store', [$thread->channel_id, $thread->id]), [])
+            ->assertRedirect(route('login')); // After post redirect to login
     }
 
     /** @test */
@@ -30,15 +35,16 @@ class ParticipateInForumTest extends TestCase
         $this->be($user = factory(User::class)->create());
 
         // and an existing thread
-        $thread = factory(Thread::class)->create();
+        $thread = create(Thread::class);
 
         // When the user adds a reply to the thread
-        $reply = factory(Reply::class)->make();
+        $reply = make(Reply::class);
 
         // Then their reply should be visible to the page
-        $this->post(route('threads.show',$thread->id) . "/replies", $reply->toArray());
+        // dd(route('threads.show', [$thread->channel->name, $thread->id]));
+        $this->post(route('replies.store', [$thread->channel->name, $thread->id]), $reply->toArray());
 
-        $this->get(route('threads.show',$thread->id))
+        $this->get(route('threads.show', [$thread->channel->name, $thread->id]))
             ->assertSee($reply->body);
 
     }

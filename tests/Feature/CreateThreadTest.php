@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
+use URL;
 
 class CreateThreadTest extends TestCase
 {
@@ -16,13 +17,25 @@ class CreateThreadTest extends TestCase
     /** @test */
     public function guest_may_not_create_thread()
     {
-        $this->expectException(AuthenticationException::class);
-        // When guest hit the endpoint to create thread
-        /** @var Thread $thread */
 
-        // $thread = factory(Thread::class)->make(); // Using the new helper make() in the next line.
-        $thread = make(Thread::class);
-        $this->post(route('threads.store'), $thread->toArray());
+        /*
+         * As a guest when we attempt to access a route that requires authentication we hit this
+         * exception Illuminate\Auth\AuthenticationException and our test fails.
+         * But hitting this exception is perfectly fine and expected.
+         * So this line $this->withExceptionHandling() allow that exception to occur but
+         * still proceed with the tests.
+         */
+        $this->withExceptionHandling();
+        /*************************************/
+
+        // When a guest tries to access the 'threads.create' route he should be redirected to login.
+        $this->get(route('threads.create'))
+            ->assertRedirect(route('login'));
+
+        // When a guest tries to POST in 'threads.store' route he should be redirected to login.
+        $this->post(route('threads.store'))
+            ->assertRedirect(route('login'));
+
     }
 
     /** @test */
@@ -41,11 +54,14 @@ class CreateThreadTest extends TestCase
 
         // When we hit the endpoint to create thread
         /** @var Thread $thread */
-        $thread = factory(Thread::class)->make();
-        $this->post(route('threads.store'), $thread->toArray());
+        $thread = create(Thread::class);
+
+        //$response = $this->post(route('threads.store'), $thread->toArray());
+        //dd($response);
 
         // Then when we visit the thread page
         // We should see the new thread
-        $this->get(route('threads.index'))->assertSee($thread->title);
+
+        $this->get(route('threads.show', [$thread->channel_id, $thread->id]))->assertSee($thread->title);
     }
 }
